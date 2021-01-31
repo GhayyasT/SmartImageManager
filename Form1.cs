@@ -277,7 +277,7 @@ namespace SmartImageForm_v1
 			editRequestResponse = await newEditRequest.Execute();
 
 			fmServer.SetLayout(graphicLayout);
-			uploadContainerResponse = await fmServer.UploadFileIntoContainerField(newGraphicRecordId, "File", fileInfo);
+			uploadContainerResponse = await fmServer.UploadFileIntoContainerField(newGraphicRecordId + 1, "File", fileInfo);
 			errorCheck = fmServer.lastErrorCode;
 		}
 
