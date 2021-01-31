@@ -54,12 +54,20 @@ namespace SmartImageForm_v1
 
 		private async Task PopulateData(int itemRecordId, int productRecordId)
 		{
-			var graphicsPortalData = await GetProductGraphicsPortal(productRecordId);
+			var productPortalAndRecordId = await GetProductGraphicsPortalAndRecordID(Convert.ToInt32(productRecordId));
+			var graphicsPortalData = productPortalAndRecordId.GraphicsPortalData;
+			var productRecordID = productPortalAndRecordId.RecordID;
 
 			fmServer.SetLayout(itemLayout);
-			var getItemRequest = fmServer.FindRequest(itemRecordId);
-			var getItemResponse = await getItemRequest.Execute();
-			var itemDetails = getItemResponse.data.foundSet.records.First().fieldsAndData;
+			var getItemBySearchFields = fmServer.FindRequest();
+			var searchFields = getItemBySearchFields.SearchCriterium();
+			searchFields.AddFieldSearch("specs_PRODUCTS::RecordID", productRecordID);
+			searchFields.AddFieldSearch("ProjectRecordID", projectRecordId);
+			getItemBySearchFields.AddPortal("Spec_to_Graphics", 9);
+			RecordsGetResponse getItemSearchFieldsResponse = await getItemBySearchFields.Execute();
+			var itemGraphicsPortalData = getItemSearchFieldsResponse.data.foundSet.records.First().relatedRecordSets.First().records;
+
+			var itemDetails = getItemSearchFieldsResponse.data.foundSet.records.First().fieldsAndData;
 			lblItemNumber.Text = itemDetails["ItemNumber"];
 			lblItemName.Text = itemDetails["ItemName"];
 
@@ -67,16 +75,23 @@ namespace SmartImageForm_v1
 			{
 				var currentButton = GetCurrentButton(i);
 
-				if (i < graphicsPortalData.records.Count())
+				if (i < itemGraphicsPortalData.Count())
 				{
 					try
 					{
-						var currentRow = graphicsPortalData.records.ElementAt(i);
-						var file = currentRow.fieldsAndData["File"];
+						var currentRow = itemGraphicsPortalData.ElementAt(i);
+						fmServer.SetLayout(graphicLayout);
+						var graphicImageId = currentRow.fieldsAndData["GraphicImage_ID"];
+						var getGraphicRequest = fmServer.FindRequest();
+						searchFields = getGraphicRequest.SearchCriterium();
+						searchFields.AddFieldSearch("ImageRecordID", graphicImageId);
+						var getGraphicResponse = await getGraphicRequest.Execute();
+						var graphicRecordId = getGraphicResponse.data.foundSet.records.First().recordId;
+						var file = getGraphicResponse.data.foundSet.records.First().fieldsAndData["File"];
 						WebClient client = new WebClient();
 						byte[] bytes = client.DownloadData(file);
 						MemoryStream ms = new MemoryStream(bytes);
-						currentButton.Tag = $"{currentRow.recordId}, {productRecordId}";
+						currentButton.Tag = $"{graphicRecordId}, {productRecordId}";
 						currentButton.BackgroundImage = Image.FromStream(ms);
 						currentButton.BackgroundImageLayout = ImageLayout.Stretch;
 					}
@@ -89,6 +104,7 @@ namespace SmartImageForm_v1
 				}
 				else
 				{
+					currentButton.Tag = $", {productRecordId}";
 					currentButton.Image = ResizedSelectImage();
 				}
 			}
@@ -110,7 +126,7 @@ namespace SmartImageForm_v1
 			}
 		}
 
-		private async Task<FMRecordSet> GetProductGraphicsPortal(int productRecordId)
+		private async Task<(FMRecordSet GraphicsPortalData, string RecordID)> GetProductGraphicsPortalAndRecordID(int productRecordId)
 		{
 			fmServer.SetLayout(productLayout);
 			var getProductRequest = fmServer.FindRequest(productRecordId);
@@ -127,7 +143,7 @@ namespace SmartImageForm_v1
 				}
 			}
 
-			return graphicsPortalData;
+			return (graphicsPortalData, findResultRow.fieldsAndData["RecordID"]);
 		}
 
 		private void btnImage1_Click(object sender, EventArgs e)
@@ -197,7 +213,7 @@ namespace SmartImageForm_v1
 				var tagList = button.Tag.ToString().Split(',');
 
 				if (string.IsNullOrEmpty(tagList[0]))
-					CreateImage(tagList[1], fileName);
+					await CreateImage(tagList[1], fileName);
 				else
 					await EditImage(tagList[0], fileName);
 			}
@@ -211,15 +227,58 @@ namespace SmartImageForm_v1
 
 			int uploadContainerResponse = await fmServer.UploadFileIntoContainerField(Convert.ToInt32(graphicRecordId), "File", fileInfo);
 
-			if (fmServer.lastErrorCode == 0)
-				Console.WriteLine("file uploaded to container");
-			else
-				Console.WriteLine(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
+			if (fmServer.lastErrorCode != 0)
+				MessageBox.Show(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
 		}
 
-		private void CreateImage(string productRecordId, string fileName)
+		private async Task CreateImage(string productRecordId, string fileName)
 		{
+			fmServer.SetLayout(productLayout);
+			var newEditRequest = fmServer.EditRequest(Convert.ToInt32(productRecordId));
+			newEditRequest.AddRelatedField("PositionNumber", "products||SPECGRAPHICS", "1", "graphicsportal");
+			var editRequestResponse = await newEditRequest.Execute();
+			var errorCheck = fmServer.lastErrorCode;
 
+			var productPortalAndRecordId = await GetProductGraphicsPortalAndRecordID(Convert.ToInt32(productRecordId));
+			var productPortalData = productPortalAndRecordId.GraphicsPortalData;
+
+			var latestPortalRecordId = 0;
+			if (productPortalData != null)
+			{
+				var portalDataRecordCount = productPortalData.records.Count();
+				latestPortalRecordId = Convert.ToInt32(productPortalData.records.ElementAt(portalDataRecordCount - 1).recordId);
+			}
+
+			fmServer.SetLayout(graphicLayout);
+
+			var graphicsRequest = fmServer.NewRecordRequest();
+			graphicsRequest.AddField("GraphicURL", "");
+			var newGraphicRecordId = await graphicsRequest.Execute();
+
+			if (fmServer.lastErrorCode != 0)
+				MessageBox.Show($"Error: {fmServer.lastErrorMessage}");
+
+			FileInfo fileInfo = new FileInfo(fileName);
+			fmServer.SetLayout(graphicLayout);
+
+			int uploadContainerResponse = await fmServer.UploadFileIntoContainerField(newGraphicRecordId, "File", fileInfo);
+
+			if (fmServer.lastErrorCode != 0)
+				MessageBox.Show(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
+
+			var findGraphicRequest = fmServer.FindRequest(newGraphicRecordId);
+			var findGraphicResponse = await findGraphicRequest.Execute();
+			var graphicFile = findGraphicResponse.data.foundSet.records.First().fieldsAndData["File"];
+
+			fmServer.SetLayout(productLayout);
+
+			newEditRequest = fmServer.EditRequest(Convert.ToInt32(productRecordId));
+			newEditRequest.ModifyRelatedField("File", "products||SPECGRAPHICS||GRAPHICS", graphicFile, latestPortalRecordId, "graphicsportal");
+			editRequestResponse = await newEditRequest.Execute();
+
+			fmServer.SetLayout(graphicLayout);
+			uploadContainerResponse = await fmServer.UploadFileIntoContainerField(newGraphicRecordId, "File", fileInfo);
+			errorCheck = fmServer.lastErrorCode;
 		}
 
 		private Image ResizedSelectImage()
