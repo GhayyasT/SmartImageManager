@@ -1,0 +1,17 @@
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\SmartImageForm_v1.exe.config
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\SmartImageForm_v1.exe
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\SmartImageForm_v1.pdb
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.csprojAssemblyReference.cache
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.Form1.resources
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.Properties.Resources.resources
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.csproj.GenerateResource.cache
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.csproj.CoreCompileInputs.cache
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.exe
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.pdb
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\FMdotNet__DataAPI.dll
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\Newtonsoft.Json.dll
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\RestSharp.dll
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\FMdotNet__DataAPI.xml
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\Newtonsoft.Json.xml
+C:\Users\user\source\repos\SmartImageForm_v1\bin\Debug\RestSharp.xml
+C:\Users\user\source\repos\SmartImageForm_v1\obj\Debug\SmartImageForm_v1.csproj.CopyComplete
