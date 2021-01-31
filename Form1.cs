@@ -213,7 +213,7 @@ namespace SmartImageForm_v1
 				var tagList = button.Tag.ToString().Split(',');
 
 				if (string.IsNullOrEmpty(tagList[0]))
-					await CreateImage(tagList[1], fileName);
+					await CreateImage(tagList[1], fileName, sender);
 				else
 					await EditImage(tagList[0], fileName);
 			}
@@ -231,7 +231,7 @@ namespace SmartImageForm_v1
 				MessageBox.Show(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
 		}
 
-		private async Task CreateImage(string productRecordId, string fileName)
+		private async Task CreateImage(string productRecordId, string fileName, object sender)
 		{
 			fmServer.SetLayout(productLayout);
 			var newEditRequest = fmServer.EditRequest(Convert.ToInt32(productRecordId));
@@ -279,6 +279,23 @@ namespace SmartImageForm_v1
 			fmServer.SetLayout(graphicLayout);
 			uploadContainerResponse = await fmServer.UploadFileIntoContainerField(newGraphicRecordId + 1, "File", fileInfo);
 			errorCheck = fmServer.lastErrorCode;
+
+			var base64String = string.Empty;
+
+			using (Image image = Image.FromFile(fileName))
+			{
+				using (MemoryStream m = new MemoryStream())
+				{
+					image.Save(m, image.RawFormat);
+					byte[] imageBytes = m.ToArray();
+					base64String = Convert.ToBase64String(imageBytes);
+				}
+			}
+
+			var button = sender as Button;
+			button.BackgroundImage = Convertbase64ToImage(base64String);
+			button.BackgroundImageLayout = ImageLayout.Stretch;
+			button.Tag = $"{newGraphicRecordId + 1}, {productRecordId}";
 		}
 
 		private Image ResizedSelectImage()
