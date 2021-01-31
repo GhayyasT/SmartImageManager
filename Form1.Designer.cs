@@ -37,7 +37,15 @@ namespace SmartImageForm_v1
 			this.lblItemNumber = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.btnImage7 = new System.Windows.Forms.Button();
+			this.btnImage8 = new System.Windows.Forms.Button();
+			this.btnImage9 = new System.Windows.Forms.Button();
 			this.btnImage1 = new System.Windows.Forms.Button();
+			this.btnImage2 = new System.Windows.Forms.Button();
+			this.btnImage3 = new System.Windows.Forms.Button();
+			this.btnImage4 = new System.Windows.Forms.Button();
+			this.btnImage5 = new System.Windows.Forms.Button();
+			this.btnImage6 = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
 			this.panel1.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -110,9 +118,9 @@ namespace SmartImageForm_v1
 			this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label2.Location = new System.Drawing.Point(3, 8);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(99, 18);
+			this.label2.Size = new System.Drawing.Size(104, 18);
 			this.label2.TabIndex = 3;
-			this.label2.Text = "ItemNumber";
+			this.label2.Text = "ItemNumber:";
 			// 
 			// tableLayoutPanel1
 			// 
@@ -121,15 +129,52 @@ namespace SmartImageForm_v1
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
+			this.tableLayoutPanel1.Controls.Add(this.btnImage7, 0, 2);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage8, 0, 2);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage9, 0, 2);
 			this.tableLayoutPanel1.Controls.Add(this.btnImage1, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage2, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage3, 2, 0);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage4, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage5, 1, 1);
+			this.tableLayoutPanel1.Controls.Add(this.btnImage6, 2, 1);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(1, 108);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 3;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(603, 377);
 			this.tableLayoutPanel1.TabIndex = 4;
+			// 
+			// btnImage7
+			// 
+			this.btnImage7.Location = new System.Drawing.Point(3, 253);
+			this.btnImage7.Name = "btnImage7";
+			this.btnImage7.Size = new System.Drawing.Size(194, 119);
+			this.btnImage7.TabIndex = 8;
+			this.btnImage7.UseVisualStyleBackColor = true;
+			this.btnImage7.Click += new System.EventHandler(this.btnImage7_Click);
+			// 
+			// btnImage8
+			// 
+			this.btnImage8.Location = new System.Drawing.Point(203, 253);
+			this.btnImage8.Name = "btnImage8";
+			this.btnImage8.Size = new System.Drawing.Size(194, 119);
+			this.btnImage8.TabIndex = 7;
+			this.btnImage8.UseVisualStyleBackColor = true;
+			this.btnImage8.Click += new System.EventHandler(this.btnImage8_Click);
+			// 
+			// btnImage9
+			// 
+			this.btnImage9.Location = new System.Drawing.Point(403, 253);
+			this.btnImage9.Name = "btnImage9";
+			this.btnImage9.Size = new System.Drawing.Size(194, 119);
+			this.btnImage9.TabIndex = 6;
+			this.btnImage9.UseVisualStyleBackColor = true;
+			this.btnImage9.Click += new System.EventHandler(this.btnImage9_Click);
 			// 
 			// btnImage1
 			// 
@@ -137,7 +182,54 @@ namespace SmartImageForm_v1
 			this.btnImage1.Name = "btnImage1";
 			this.btnImage1.Size = new System.Drawing.Size(194, 119);
 			this.btnImage1.TabIndex = 0;
+			this.btnImage1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
 			this.btnImage1.UseVisualStyleBackColor = true;
+			this.btnImage1.Click += new System.EventHandler(this.btnImage1_Click);
+			// 
+			// btnImage2
+			// 
+			this.btnImage2.Location = new System.Drawing.Point(203, 3);
+			this.btnImage2.Name = "btnImage2";
+			this.btnImage2.Size = new System.Drawing.Size(194, 119);
+			this.btnImage2.TabIndex = 1;
+			this.btnImage2.UseVisualStyleBackColor = true;
+			this.btnImage2.Click += new System.EventHandler(this.btnImage2_Click);
+			// 
+			// btnImage3
+			// 
+			this.btnImage3.Location = new System.Drawing.Point(403, 3);
+			this.btnImage3.Name = "btnImage3";
+			this.btnImage3.Size = new System.Drawing.Size(194, 119);
+			this.btnImage3.TabIndex = 2;
+			this.btnImage3.UseVisualStyleBackColor = true;
+			this.btnImage3.Click += new System.EventHandler(this.btnImage3_Click);
+			// 
+			// btnImage4
+			// 
+			this.btnImage4.Location = new System.Drawing.Point(3, 128);
+			this.btnImage4.Name = "btnImage4";
+			this.btnImage4.Size = new System.Drawing.Size(194, 119);
+			this.btnImage4.TabIndex = 3;
+			this.btnImage4.UseVisualStyleBackColor = true;
+			this.btnImage4.Click += new System.EventHandler(this.btnImage4_Click);
+			// 
+			// btnImage5
+			// 
+			this.btnImage5.Location = new System.Drawing.Point(203, 128);
+			this.btnImage5.Name = "btnImage5";
+			this.btnImage5.Size = new System.Drawing.Size(194, 119);
+			this.btnImage5.TabIndex = 4;
+			this.btnImage5.UseVisualStyleBackColor = true;
+			this.btnImage5.Click += new System.EventHandler(this.btnImage5_Click);
+			// 
+			// btnImage6
+			// 
+			this.btnImage6.Location = new System.Drawing.Point(403, 128);
+			this.btnImage6.Name = "btnImage6";
+			this.btnImage6.Size = new System.Drawing.Size(194, 119);
+			this.btnImage6.TabIndex = 5;
+			this.btnImage6.UseVisualStyleBackColor = true;
+			this.btnImage6.Click += new System.EventHandler(this.btnImage6_Click);
 			// 
 			// Form1
 			// 
@@ -174,6 +266,14 @@ namespace SmartImageForm_v1
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.Button btnImage1;
+		private System.Windows.Forms.Button btnImage7;
+		private System.Windows.Forms.Button btnImage8;
+		private System.Windows.Forms.Button btnImage9;
+		private System.Windows.Forms.Button btnImage2;
+		private System.Windows.Forms.Button btnImage3;
+		private System.Windows.Forms.Button btnImage4;
+		private System.Windows.Forms.Button btnImage5;
+		private System.Windows.Forms.Button btnImage6;
 	}
 }
 

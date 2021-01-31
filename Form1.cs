@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,6 +27,7 @@ namespace SmartImageForm_v1
 		private readonly string graphicLayout = "|Graphics";
 		private FMS18 fmServer;
 		private string token = string.Empty;
+		private IEnumerable<string> fileLines = new List<string>();
 
 		public Form1()
 		{
@@ -37,46 +39,59 @@ namespace SmartImageForm_v1
 		private async void Form1_Load(object sender, EventArgs e)
 		{
 			logoPictureBox.Image = Image.FromFile($@"{relativePath}Images\logo.jpg");
-			var lines = File.ReadLines(filePath).ToList();
 			await AuthenticateFileMakerServer();
-			await PopulateData(173956, 91086);
+
+			try
+			{
+				fileLines = File.ReadLines(filePath).ToList();
+				await PopulateData(173956, 91806);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Error: {ex.Message}");
+			}
 		}
 
-		private async Task PopulateData(int itemRecordId, int porductRecordId)
+		private async Task PopulateData(int itemRecordId, int productRecordId)
 		{
-			fmServer.SetLayout(productLayout);
-			var getProductRequest = fmServer.FindRequest(91806);
-			var getProductResponse = await getProductRequest.Execute();
+			var graphicsPortalData = await GetProductGraphicsPortal(productRecordId);
 
-			FMRecord findResultRow = getProductResponse.data.foundSet.records.First();
-			FMRecordSet graphicsPortalData = null;
-
-			foreach (var relatedData in findResultRow.relatedRecordSets)
-			{
-				if (!string.IsNullOrEmpty(relatedData.tableLayoutObjectName) && relatedData.tableLayoutObjectName.ToLower() == "graphicsportal")
-				{
-					graphicsPortalData = relatedData;
-					break;
-				}
-			}
+			fmServer.SetLayout(itemLayout);
+			var getItemRequest = fmServer.FindRequest(itemRecordId);
+			var getItemResponse = await getItemRequest.Execute();
+			var itemDetails = getItemResponse.data.foundSet.records.First().fieldsAndData;
+			lblItemNumber.Text = itemDetails["ItemNumber"];
+			lblItemName.Text = itemDetails["ItemName"];
 
 			for (int i = 0; i < 9; i++)
 			{
-				var pictureBox = GetCurrentPictureBox(i);
+				var currentButton = GetCurrentButton(i);
 
-				if (i > 10 && i < graphicsPortalData.records.Count())
+				if (i < graphicsPortalData.records.Count())
 				{
-					var currentRow = graphicsPortalData.records.ElementAt(i);
-					var file = currentRow.fieldsAndData["File"];
-
+					try
+					{
+						var currentRow = graphicsPortalData.records.ElementAt(i);
+						var file = currentRow.fieldsAndData["File"];
+						WebClient client = new WebClient();
+						byte[] bytes = client.DownloadData(file);
+						MemoryStream ms = new MemoryStream(bytes);
+						currentButton.Tag = $"{currentRow.recordId}, {productRecordId}";
+						currentButton.BackgroundImage = Image.FromStream(ms);
+						currentButton.BackgroundImageLayout = ImageLayout.Stretch;
+					}
+					catch (Exception ex)
+					{
+						currentButton.Tag = $", {productRecordId}";
+						currentButton.Image = ResizedSelectImage();
+						MessageBox.Show($"Error: {ex.Message}");
+					}
 				}
 				else
 				{
-					pictureBox.Image = ResizedSelectImage();
+					currentButton.Image = ResizedSelectImage();
 				}
 			}
-
-			//MessageBox.Show($"Error while retrieving data, {fmServer.lastErrorMessage}");
 		}
 
 		private async Task AuthenticateFileMakerServer()
@@ -93,6 +108,118 @@ namespace SmartImageForm_v1
 				else
 					MessageBox.Show(ex.Message);
 			}
+		}
+
+		private async Task<FMRecordSet> GetProductGraphicsPortal(int productRecordId)
+		{
+			fmServer.SetLayout(productLayout);
+			var getProductRequest = fmServer.FindRequest(productRecordId);
+			var getProductResponse = await getProductRequest.Execute();
+			FMRecord findResultRow = getProductResponse.data.foundSet.records.First();
+			FMRecordSet graphicsPortalData = null;
+
+			foreach (var relatedData in findResultRow.relatedRecordSets)
+			{
+				if (!string.IsNullOrEmpty(relatedData.tableLayoutObjectName) && relatedData.tableLayoutObjectName.ToLower() == "graphicsportal")
+				{
+					graphicsPortalData = relatedData;
+					break;
+				}
+			}
+
+			return graphicsPortalData;
+		}
+
+		private void btnImage1_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage2_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage3_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage4_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage5_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage6_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage7_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage8_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private void btnImage9_Click(object sender, EventArgs e)
+		{
+			CreateOrEditImage(sender);
+		}
+
+		private string OpenDialog()
+		{
+			var dialog = new OpenFileDialog();
+			dialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.png) | *.jpg; *.jpeg; *.jpe; *.png";
+			dialog.Title = "Please select an image";
+
+			if (dialog.ShowDialog() == DialogResult.OK)
+				return dialog.FileName;
+			else
+				return string.Empty;
+		}
+
+		private async void CreateOrEditImage(object sender)
+		{
+			var fileName = OpenDialog();
+
+			if (!string.IsNullOrEmpty(fileName))
+			{
+				var button = sender as Button;
+				var tagList = button.Tag.ToString().Split(',');
+
+				if (string.IsNullOrEmpty(tagList[0]))
+					CreateImage(tagList[1], fileName);
+				else
+					await EditImage(tagList[0], fileName);
+			}
+		}
+
+		private async Task EditImage(string graphicRecordId, string fileName)
+		{
+			string fileToUpload = $@"{fileName}";
+			FileInfo fileInfo = new FileInfo(fileToUpload);
+			fmServer.SetLayout("|Graphics");
+
+			int uploadContainerResponse = await fmServer.UploadFileIntoContainerField(Convert.ToInt32(graphicRecordId), "File", fileInfo);
+
+			if (fmServer.lastErrorCode == 0)
+				Console.WriteLine("file uploaded to container");
+			else
+				Console.WriteLine(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
+		}
+
+		private void CreateImage(string productRecordId, string fileName)
+		{
+
 		}
 
 		private Image ResizedSelectImage()
@@ -113,26 +240,26 @@ namespace SmartImageForm_v1
 			return image;
 		}
 
-		private Button GetCurrentPictureBox(int index)
+		private Button GetCurrentButton(int index)
 		{
 			if (index == 0)
 				return btnImage1;
 			else if (index == 1)
-				return btnImage1;
+				return btnImage2;
 			else if (index == 2)
-				return btnImage1;
+				return btnImage3;
 			else if (index == 3)
-				return btnImage1;
+				return btnImage4;
 			else if (index == 4)
-				return btnImage1;
+				return btnImage5;
 			else if (index == 5)
-				return btnImage1;
+				return btnImage6;
 			else if (index == 6)
-				return btnImage1;
+				return btnImage7;
 			else if (index == 7)
-				return btnImage1;
+				return btnImage8;
 			else
-				return btnImage1;
+				return btnImage9;
 		}
 	}
 }
