@@ -46,6 +46,7 @@ namespace SmartImageForm_v1
 			this.btnImage4 = new System.Windows.Forms.Button();
 			this.btnImage5 = new System.Windows.Forms.Button();
 			this.btnImage6 = new System.Windows.Forms.Button();
+			this.comboItems = new System.Windows.Forms.ComboBox();
 			((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
 			this.panel1.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -231,11 +232,21 @@ namespace SmartImageForm_v1
 			this.btnImage6.UseVisualStyleBackColor = true;
 			this.btnImage6.Click += new System.EventHandler(this.btnImage6_Click);
 			// 
+			// comboItems
+			// 
+			this.comboItems.FormattingEnabled = true;
+			this.comboItems.Location = new System.Drawing.Point(483, 26);
+			this.comboItems.Name = "comboItems";
+			this.comboItems.Size = new System.Drawing.Size(121, 21);
+			this.comboItems.TabIndex = 5;
+			this.comboItems.SelectedValueChanged += new System.EventHandler(this.comboItems_SelectedValueChanged);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(605, 486);
+			this.Controls.Add(this.comboItems);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.label1);
@@ -274,6 +285,7 @@ namespace SmartImageForm_v1
 		private System.Windows.Forms.Button btnImage4;
 		private System.Windows.Forms.Button btnImage5;
 		private System.Windows.Forms.Button btnImage6;
+		private System.Windows.Forms.ComboBox comboItems;
 	}
 }
 

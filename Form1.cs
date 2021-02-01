@@ -1,13 +1,10 @@
 ﻿using FMdotNet__DataAPI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -28,6 +25,8 @@ namespace SmartImageForm_v1
 		private FMS18 fmServer;
 		private string token = string.Empty;
 		private IEnumerable<string> fileLines = new List<string>();
+		private int firstProductId = 0;
+		private bool isFirstRun = true;
 
 		public Form1()
 		{
@@ -44,7 +43,9 @@ namespace SmartImageForm_v1
 			try
 			{
 				fileLines = File.ReadLines(filePath).ToList();
-				await PopulateData(173956, 91806);
+				PopulateComboBox(fileLines);
+				await PopulateData(0, firstProductId);
+				isFirstRun = false;
 			}
 			catch (Exception ex)
 			{
@@ -98,14 +99,14 @@ namespace SmartImageForm_v1
 					catch (Exception ex)
 					{
 						currentButton.Tag = $", {productRecordId}";
-						currentButton.Image = ResizedSelectImage();
+						currentButton.BackgroundImage = ResizedSelectImage();
 						MessageBox.Show($"Error: {ex.Message}");
 					}
 				}
 				else
 				{
 					currentButton.Tag = $", {productRecordId}";
-					currentButton.Image = ResizedSelectImage();
+					currentButton.BackgroundImage = ResizedSelectImage();
 				}
 			}
 		}
@@ -215,11 +216,11 @@ namespace SmartImageForm_v1
 				if (string.IsNullOrEmpty(tagList[0]))
 					await CreateImage(tagList[1], fileName, sender);
 				else
-					await EditImage(tagList[0], fileName);
+					await EditImage(tagList[0], fileName, sender);
 			}
 		}
 
-		private async Task EditImage(string graphicRecordId, string fileName)
+		private async Task EditImage(string graphicRecordId, string fileName, object sender)
 		{
 			string fileToUpload = $@"{fileName}";
 			FileInfo fileInfo = new FileInfo(fileToUpload);
@@ -229,6 +230,24 @@ namespace SmartImageForm_v1
 
 			if (fmServer.lastErrorCode != 0)
 				MessageBox.Show(fmServer.lastErrorCode.ToString() + " - " + fmServer.lastErrorMessage);
+			else
+			{
+				var base64String = string.Empty;
+
+				using (Image image = Image.FromFile(fileName))
+				{
+					using (MemoryStream m = new MemoryStream())
+					{
+						image.Save(m, image.RawFormat);
+						byte[] imageBytes = m.ToArray();
+						base64String = Convert.ToBase64String(imageBytes);
+					}
+				}
+
+				var button = sender as Button;
+				button.BackgroundImage = Convertbase64ToImage(base64String);
+				button.BackgroundImageLayout = ImageLayout.Stretch;
+			}
 		}
 
 		private async Task CreateImage(string productRecordId, string fileName, object sender)
@@ -316,6 +335,41 @@ namespace SmartImageForm_v1
 			return image;
 		}
 
+		private void PopulateComboBox(IEnumerable<string> lines)
+		{
+			bool isFirstRow = true;
+			var comboItemList = new List<ComboItem>();
+			foreach (var line in lines.Skip(1))
+			{
+				var values = line.Split(',');
+
+				if (isFirstRow)
+					firstProductId = Convert.ToInt32(values[3].Trim());
+
+				if (!string.IsNullOrEmpty(line))
+				{
+					try
+					{
+						var comboItem = new ComboItem { ItemNumber = values[1].Trim(), ProductRecordId = Convert.ToInt32(values[3].Trim()) };
+						comboItemList.Add(comboItem);
+
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show(ex.Message);
+					}
+				}
+
+				isFirstRow = true;
+			}
+
+			var bindingSource = new BindingSource();
+			bindingSource.DataSource = comboItemList;
+			comboItems.DataSource = bindingSource.DataSource;
+			comboItems.DisplayMember = "ItemNumber";
+			comboItems.ValueMember = "ProductRecordId";
+		}
+
 		private Button GetCurrentButton(int index)
 		{
 			if (index == 0)
@@ -336,6 +390,22 @@ namespace SmartImageForm_v1
 				return btnImage8;
 			else
 				return btnImage9;
+		}
+
+		private class ComboItem
+		{
+			public string ItemNumber { get; set; }
+			public int ProductRecordId { get; set; }
+		}
+
+		private async void comboItems_SelectedValueChanged(object sender, EventArgs e)
+		{
+			if (!isFirstRun)
+			{
+				var comboBox = sender as ComboBox;
+				var selectedItem = (ComboItem)comboBox.SelectedItem;
+				await PopulateData(0, selectedItem.ProductRecordId);
+			}
 		}
 	}
 }
