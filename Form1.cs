@@ -14,8 +14,8 @@ namespace SmartImageForm_v1
 	{
 		private readonly string relativePath = string.Empty;
 		private readonly string projectRecordId = "1404";
-		private readonly string filePath = @"C:\Users\user\Desktop\Smart_Image_Form_Data.txt";
-		private readonly string server = "prod01.thesmartdesigner.com";
+		private readonly string filePath = @"C:\Users\user\Desktop\Smart_Image_Form_Data.txt"; // Provide FileName here to read data
+		private readonly string server = "prod01.thesmartdesigner.com"; // servername
 		private readonly string database = "V6_Data_99999";
 		private readonly string userName = "tss";
 		private readonly string password = "2504B";
@@ -38,13 +38,13 @@ namespace SmartImageForm_v1
 		private async void Form1_Load(object sender, EventArgs e)
 		{
 			logoPictureBox.Image = Image.FromFile($@"{relativePath}Images\logo.jpg");
-			await AuthenticateFileMakerServer();
+			await AuthenticateFileMakerServer();										// Authenticate to FileMaker
 
 			try
 			{
 				fileLines = File.ReadLines(filePath).ToList();
-				PopulateComboBox(fileLines);
-				await PopulateData(0, firstProductId);
+				PopulateComboBox(fileLines);							
+				await PopulateData(0, firstProductId);									//Providing ProductRecordId to show items data
 				isFirstRun = false;
 			}
 			catch (Exception ex)
@@ -55,14 +55,14 @@ namespace SmartImageForm_v1
 
 		private async Task PopulateData(int itemRecordId, int productRecordId)
 		{
-			var productPortalAndRecordId = await GetProductGraphicsPortalAndRecordID(Convert.ToInt32(productRecordId));
+			var productPortalAndRecordId = await GetProductGraphicsPortalAndRecordID(Convert.ToInt32(productRecordId)); //getting portal data
 			var graphicsPortalData = productPortalAndRecordId.GraphicsPortalData;
 			var productRecordID = productPortalAndRecordId.RecordID;
 
 			fmServer.SetLayout(itemLayout);
 			var getItemBySearchFields = fmServer.FindRequest();
 			var searchFields = getItemBySearchFields.SearchCriterium();
-			searchFields.AddFieldSearch("specs_PRODUCTS::RecordID", productRecordID);
+			searchFields.AddFieldSearch("specs_PRODUCTS::RecordID", productRecordID);				// to apply search for 9 images, had to apply searchFields
 			searchFields.AddFieldSearch("ProjectRecordID", projectRecordId);
 			getItemBySearchFields.AddPortal("Spec_to_Graphics", 9);
 			RecordsGetResponse getItemSearchFieldsResponse = await getItemBySearchFields.Execute();
@@ -72,7 +72,7 @@ namespace SmartImageForm_v1
 			lblItemNumber.Text = itemDetails["ItemNumber"];
 			lblItemName.Text = itemDetails["ItemName"];
 
-			for (int i = 0; i < 9; i++)
+			for (int i = 0; i < 9; i++)								// this loop displays images, set ids to be able to create and edit a image on button click 
 			{
 				var currentButton = GetCurrentButton(i);
 
@@ -92,7 +92,7 @@ namespace SmartImageForm_v1
 						WebClient client = new WebClient();
 						byte[] bytes = client.DownloadData(file);
 						MemoryStream ms = new MemoryStream(bytes);
-						currentButton.Tag = $"{graphicRecordId}, {productRecordId}";
+						currentButton.Tag = $"{graphicRecordId}, {productRecordId}";			// sets tag to be used later to edit,create image
 						currentButton.BackgroundImage = Image.FromStream(ms);
 						currentButton.BackgroundImageLayout = ImageLayout.Stretch;
 					}
@@ -127,6 +127,7 @@ namespace SmartImageForm_v1
 			}
 		}
 
+		// this method gets graphic portal info of a product
 		private async Task<(FMRecordSet GraphicsPortalData, string RecordID)> GetProductGraphicsPortalAndRecordID(int productRecordId)
 		{
 			fmServer.SetLayout(productLayout);
@@ -220,6 +221,7 @@ namespace SmartImageForm_v1
 			}
 		}
 
+		//To edit existing image
 		private async Task EditImage(string graphicRecordId, string fileName, object sender)
 		{
 			string fileToUpload = $@"{fileName}";
@@ -250,6 +252,7 @@ namespace SmartImageForm_v1
 			}
 		}
 
+		//To add a new image against product/item
 		private async Task CreateImage(string productRecordId, string fileName, object sender)
 		{
 			fmServer.SetLayout(productLayout);
