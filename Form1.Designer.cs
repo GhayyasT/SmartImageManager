@@ -235,9 +235,9 @@ namespace SmartImageForm_v1
 			// comboItems
 			// 
 			this.comboItems.FormattingEnabled = true;
-			this.comboItems.Location = new System.Drawing.Point(483, 26);
+			this.comboItems.Location = new System.Drawing.Point(430, 26);
 			this.comboItems.Name = "comboItems";
-			this.comboItems.Size = new System.Drawing.Size(121, 21);
+			this.comboItems.Size = new System.Drawing.Size(174, 21);
 			this.comboItems.TabIndex = 5;
 			this.comboItems.SelectedValueChanged += new System.EventHandler(this.comboItems_SelectedValueChanged);
 			// 

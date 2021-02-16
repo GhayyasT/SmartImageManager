@@ -353,7 +353,8 @@ namespace SmartImageForm_v1
 				{
 					try
 					{
-						var comboItem = new ComboItem { ItemNumber = values[1].Trim(), ProductRecordId = Convert.ToInt32(values[3].Trim()) };
+						var itemNumberAndName = $"{values[1].Trim()} - {values[2].Trim()}";
+						var comboItem = new ComboItem { ItemNumber = itemNumberAndName , ProductRecordId = Convert.ToInt32(values[3].Trim()) };
 						comboItemList.Add(comboItem);
 
 					}
