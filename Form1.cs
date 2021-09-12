@@ -89,12 +89,19 @@ namespace SmartImageForm_v1
 						var getGraphicResponse = await getGraphicRequest.Execute();
 						var graphicRecordId = getGraphicResponse.data.foundSet.records.First().recordId;
 						var file = getGraphicResponse.data.foundSet.records.First().fieldsAndData["File"];
-						WebClient client = new WebClient();
-						byte[] bytes = client.DownloadData(file);
-						MemoryStream ms = new MemoryStream(bytes);
-						currentButton.Tag = $"{graphicRecordId}, {productRecordId}";			// sets tag to be used later to edit,create image
-						currentButton.BackgroundImage = Image.FromStream(ms);
-						currentButton.BackgroundImageLayout = ImageLayout.Stretch;
+						var client = new HttpClient();
+						var response = await client.GetAsync(file);
+
+						if (response.StatusCode == HttpStatusCode.OK)
+						{
+							using (var stream = await response.Content.ReadAsStreamAsync())
+							{
+								currentButton.BackgroundImage = Image.FromStream(stream);
+								currentButton.BackgroundImageLayout = ImageLayout.Stretch;
+							}
+						}
+
+						currentButton.Tag = $"{graphicRecordId}, {productRecordId}";
 					}
 					catch (Exception ex)
 					{
@@ -364,7 +371,7 @@ namespace SmartImageForm_v1
 					}
 				}
 
-				isFirstRow = true;
+				isFirstRow = false;
 			}
 
 			var bindingSource = new BindingSource();
